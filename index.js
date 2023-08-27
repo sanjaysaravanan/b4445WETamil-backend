@@ -13,12 +13,13 @@ var todos = [
   { id: "1", title: 'Dance', isComplete: true, dueDate: '2023-08-30' }
 ];
 
-
 // const express = require('express');
 
 // const { logSomething } = require('./utils');
 
 const app = express();
+
+const PORT = process.env.PORT || 5050;
 
 // Top/Global Level await
 await connectToDb();
@@ -41,7 +42,7 @@ app.get('/api/:name', (req, res) => {
   res.send({ path: req.params, query: req.query });
 });
 
-app.listen(5050, () => {
+app.listen(PORT, () => {
   console.log('Application Started on 5050');
   logSomething();
 });
