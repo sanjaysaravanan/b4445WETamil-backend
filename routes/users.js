@@ -5,15 +5,13 @@ import { user as userModel } from '../db-utils/models.js';
 const userRouter = express.Router();
 
 userRouter.get('/', async (req, res) => {
-
   try {
-    const users = await userModel.find({}, { id: 1, name: 1, dob: 1, _id: 0 }); console.log(users);
+    const users = await userModel.find({}, { id: 1, name: 1, dob: 1, _id: 0 });
     res.send(users);
   } catch (err) {
     console.log(err);
     res.status(500).send({ msg: 'Error occuerred while fetching users' });
   }
-
 });
 
 
