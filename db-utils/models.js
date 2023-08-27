@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
   dob: {
     type: 'string',
     required: true
+  },
+  imageUrl: {
+    type: 'string',
+    required: true
   }
 });
 

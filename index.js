@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 
 import { logSomething } from './utils.js';
 
@@ -25,6 +26,8 @@ const PORT = process.env.PORT || 5050;
 await connectToDb();
 
 app.use(express.static('public'));
+
+app.use(cors());
 
 app.use(express.json());
 
