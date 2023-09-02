@@ -7,6 +7,7 @@ import connectToDb from './db-utils/mongoos-connection.js';
 
 import todoRouter from './routes/todos.js';
 import userRouter from './routes/users.js';
+import authRouter from './routes/app-users.js';
 
 var todos = [
   { id: "2", title: 'Run', isComplete: true, dueDate: '2023-08-31' },
@@ -33,6 +34,7 @@ app.use(express.json());
 
 app.use('/api/todos', todoRouter);
 app.use('/api/users', userRouter);
+app.use('/api/auth', authRouter);
 
 app.get('/api', (req, res) => {
   res.send({ 'name': 'B4445WETAMIL', students: 25 });

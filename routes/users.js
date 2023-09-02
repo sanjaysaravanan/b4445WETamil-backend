@@ -6,6 +6,8 @@ import { v4 } from 'uuid';
 
 const userRouter = express.Router();
 
+
+// Enitiy like people, sports random application data
 userRouter.get('/', async (req, res) => {
   try {
     const users = await userModel.find({}, { id: 1, name: 1, dob: 1, imageUrl: 1, _id: 0 });
