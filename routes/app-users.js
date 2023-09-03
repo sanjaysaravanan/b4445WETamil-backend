@@ -6,7 +6,10 @@ import { AppUserModel } from '../db-utils/models.js';
 
 import { v4 } from 'uuid';
 
+import jwt from 'jsonwebtoken';
+
 import bcrypt from 'bcrypt';
+import { mailOptions, transporter } from './mail.js';
 
 const authRouter = express.Router();
 
@@ -31,8 +34,14 @@ authRouter.post('/register', async (req, res) => {
         return;
       }
 
-      const authUser = new AppUserModel({ ...payload, password: hash, id: v4() });
+      const authUser = new AppUserModel({ ...payload, password: hash, id: v4(), role: 'admin', isVerified: false });
       await authUser.save();
+
+      const verifyToken = jwt.sign({ email: payload.email }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+      const link = `${process.env.FRONTEND_URL}/verify?token=${verifyToken}`
+
+      await transporter.sendMail({ ...mailOptions, to: payload.email, text: `Hi Hello, please verify Your email ${link}` });
     })
 
     res.send({ msg: 'User Registered Successfully' });
@@ -55,12 +64,27 @@ authRouter.get('/:email', async function (req, res) {
 });
 
 
+authRouter.post('/verify', async function (req, res) {
+  try {
+    const token = req.body.token;
+    jwt.verify(token, process.env.JWT_SECRET, async (err, result) => {
+      await AppUserModel.updateOne({ email: result.email }, { '$set': { isVerified: true } });
+    });
+
+    res.send({ msg: 'User Verified' });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ msg: 'Error occuerred while fetching users' });
+  }
+});
+
+
 // Login
 authRouter.post('/login', async function (req, res) {
   try {
 
     const payload = req.body;
-    const appUser = await AppUserModel.findOne({ email: payload.email }, { id: 1, name: 1, email: 1, password: 1, _id: 0 });
+    const appUser = await AppUserModel.findOne({ email: payload.email }, { id: 1, name: 1, email: 1, role: 1, password: 1, _id: 0 });
 
     if (appUser) {
       await bcrypt.compare(payload.password, appUser.password, (_err, result) => {
@@ -69,7 +93,9 @@ authRouter.post('/login', async function (req, res) {
         } else {
           const resposneObj = appUser.toObject();
           delete resposneObj.password;
-          res.send(resposneObj);
+          const accessToken = jwt.sign({ role: resposneObj.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+          delete resposneObj.role;
+          res.send({ ...resposneObj, accessToken });
         }
       })
     } else {

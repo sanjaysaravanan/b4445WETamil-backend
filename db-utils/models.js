@@ -38,6 +38,14 @@ const appUserSchema = new mongoose.Schema({
   password: {
     type: 'string',
     required: true
+  },
+  role: {
+    type: 'string', // admin, management, normal
+    required: true
+  },
+  isVerified: {
+    type: 'boolean',
+    required: true
   }
 });
 

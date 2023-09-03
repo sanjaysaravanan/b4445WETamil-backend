@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
 
 import { logSomething } from './utils.js';
 
@@ -32,8 +33,26 @@ app.use(cors());
 
 app.use(express.json());
 
-app.use('/api/todos', todoRouter);
-app.use('/api/users', userRouter);
+const myLogger = (req, res, next) => {
+  console.log('####', new Date().toISOString(), '####', `Calling ${req.url}, Method: ${req.method}`);
+  next();
+}
+
+app.use(myLogger);
+
+const authMiddleware = (req, res, next) => {
+  const authToken = req.headers['auth-token'];
+  try {
+    jwt.verify(authToken, process.env.JWT_SECRET);
+    next();
+  } catch (e) {
+    console.error('## Error Occured ##', e);
+    res.status(401).send({ msg: 'Unauthorized' });
+  }
+}
+
+app.use('/api/todos', authMiddleware, todoRouter);
+app.use('/api/users', authMiddleware, userRouter);
 app.use('/api/auth', authRouter);
 
 app.get('/api', (req, res) => {

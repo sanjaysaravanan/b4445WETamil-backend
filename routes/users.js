@@ -6,7 +6,6 @@ import { v4 } from 'uuid';
 
 const userRouter = express.Router();
 
-
 // Enitiy like people, sports random application data
 userRouter.get('/', async (req, res) => {
   try {
